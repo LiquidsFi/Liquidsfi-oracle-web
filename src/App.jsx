@@ -16,7 +16,8 @@ import Bridge from "./pages/swap/Bridge";
 import Liquidity from "./pages/add-liquidity/Liquidity";
 import { SidebarContextProvider } from "./context/SidebarContext";
 import TransferDetails from "./pages/transfer/TransferDetails.jsx";
-import TransactionDetails from "./pages/transfer/TransactionDetails.jsx";
+import Explorer from "./pages/swap/Explorer.jsx";
+// import TransactionDetails from "./pages/transfer/TransactionDetails.jsx";
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -26,12 +27,15 @@ const router = createBrowserRouter(
 			<Route path="/" element={<DashboardLayout />}>
 				<Route index element={<Navigate to="/bridge" />} />
 				<Route path="/bridge" element={<Trade />} />
+				<Route path="/explorer" element={<Explorer />}>
+					<Route path=":id" element={<Explorer />} />
+				</Route>
 				<Route path="/transfers">
 					<Route path=":transferId" element={<TransferDetails />} />
 				</Route>
-				<Route path="/explorer">
+				{/* <Route path="/explorer">
 					<Route path=":transferId" element={<TransactionDetails />} />
-				</Route>
+				</Route> */}
 				<Route path="/liquidity">
 					<Route index element={<Liquidity />} />
 				</Route>
