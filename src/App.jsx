@@ -17,6 +17,7 @@ import Liquidity from "./pages/add-liquidity/Liquidity";
 import { SidebarContextProvider } from "./context/SidebarContext";
 import TransferDetails from "./pages/transfer/TransferDetails.jsx";
 import Explorer from "./pages/swap/Explorer.jsx";
+import SupportedChain from "./pages/swap/SupportedChain.jsx";
 // import TransactionDetails from "./pages/transfer/TransactionDetails.jsx";
 
 const router = createBrowserRouter(
@@ -30,6 +31,8 @@ const router = createBrowserRouter(
 				<Route path="/explorer" element={<Explorer />}>
 					<Route path=":id" element={<Explorer />} />
 				</Route>
+				<Route path="/supported-chains" element={<SupportedChain />} />
+
 				<Route path="/transfers">
 					<Route path=":transferId" element={<TransferDetails />} />
 				</Route>

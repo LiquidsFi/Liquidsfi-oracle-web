@@ -78,7 +78,7 @@ function TransactionHistory() {
 				<Search visible={true} query={query} setQuery={setQuery} />
 			</div>
 
-			<div className="border border-[#09243B] p-6 rounded-xl">
+			<div className="border border-[#09243B] p-6 rounded-xl bg-[#04131F]">
 				{loadingTransactionHistory ? (
 					<Loader />
 				) : errorLoadingTransactionHistory ? (

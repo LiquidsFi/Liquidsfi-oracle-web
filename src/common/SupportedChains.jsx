@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useQuery } from "@tanstack/react-query";
 import { getSupportedChains } from "../services";
 import { Link } from "react-router-dom";
@@ -7,7 +8,7 @@ import Empty from "./Empty";
 import { Fragment } from "react";
 import { shortenString } from "../utils";
 
-function SupportedChains() {
+function SupportedChains({ detailsPage = false }) {
 	const {
 		data: supportedChainsData,
 		isLoading: loadingSupportedChains,
@@ -22,13 +23,16 @@ function SupportedChains() {
 		<div className="lg:col-span-3 space-y-4">
 			<div className="flex justify-between items-center min-h-[50px]">
 				<h2 className="text-[20px] font-bold">Supported Chains</h2>
-
-				<Link to="/supported-chains">
-					<FaArrowRightLong className="text-[28px] text-white" />
-				</Link>
+				{!detailsPage ? (
+					<>
+						<Link to="/supported-chains">
+							<FaArrowRightLong className="text-[28px] text-white" />
+						</Link>
+					</>
+				) : null}
 			</div>
 
-			<div className="border border-[#09243B] p-6 rounded-xl">
+			<div className="border border-[#09243B] p-6 rounded-xl bg-[#04131F]">
 				{loadingSupportedChains ? (
 					<Loader />
 				) : errorLoadingSupportedChains ? (
@@ -37,6 +41,10 @@ function SupportedChains() {
 					<Empty title="No supported networks found..." />
 				) : (
 					<>
+						<div className="flex items-center justify-between gap-2 text-[#E8E8E8] text-[14px] mb-6">
+							<span>Chain</span>
+							<span>Oracle Contract</span>
+						</div>
 						{supportedChainsData.map((network, i) => (
 							<Fragment key={i}>
 								<div className="border-b border-[#09243B] pb-4 flex flex-wrap justify-between gap-4 items-center mb-4 last:border-0 last:pb-0 last:mb-0">
