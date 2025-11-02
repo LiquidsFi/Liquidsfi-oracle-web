@@ -7,8 +7,6 @@ function SidebarLink({ link }) {
 	const location = useLocation();
 	const active = location.pathname === link.path;
 
-	console.log({ link });
-
 	const { isOpen } = useContext(SidebarContext);
 
 	return (
