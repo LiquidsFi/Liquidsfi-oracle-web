@@ -10,6 +10,7 @@ import History from "./History";
 import TransactionHistoryDetails from "./TransactionHistoryDetails";
 import { Popover } from "@headlessui/react";
 import { IoMdClose } from "react-icons/io";
+import { motion, AnimatePresence } from "framer-motion";
 
 function TransactionHistory() {
 	const [query, setQuery] = useState("");
@@ -105,44 +106,60 @@ function TransactionHistory() {
 														<History transaction={transaction} />
 													</Popover.Button>
 
-													{isOpen && (
-														<>
-															<div
-																onClick={() => {
-																	close();
-																	navigate("/explorer", { replace: true });
-																	setOpenTransaction(null);
-																}}
-																className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ease-out"
-															/>
-															<div
-																className={`fixed right-0 top-0 bottom-0 w-[calc(100vw-150px)] bg-[#04131F] z-50 border-none rounded-xl flex flex-col overflow-hidden transform transition-transform duration-300 ease-in-out ${
-																	isOpen ? "translate-x-0" : "translate-x-full"
-																}`}
-															>
-																<div className="flex items-center justify-between pr-4 py-4">
-																	<h1 className="text-[20px] text-left px-5 lg:text-[32px] text-white font-bold">
-																		Transaction Details
-																	</h1>
-																	<button
-																		onClick={() => {
-																			close();
-																			navigate("/explorer", { replace: true });
-																			setOpenTransaction(null);
-																		}}
-																		className="bg-[#09243B] rounded-lg p-1.5 hover:bg-[#0D374E] transition"
-																	>
-																		<IoMdClose className="size-6 text-white" />
-																	</button>
-																</div>
-																<hr className="border border-[#09243B] my-6" />
-
-																<TransactionHistoryDetails
-																	transaction={transaction}
+													<AnimatePresence>
+														{isOpen && (
+															<>
+																<motion.div
+																	key="overlay"
+																	initial={{ opacity: 0 }}
+																	animate={{ opacity: 0.5 }}
+																	exit={{ opacity: 0 }}
+																	transition={{ duration: 0.3 }}
+																	className="fixed inset-0 bg-black z-40"
+																	onClick={() => {
+																		close();
+																		navigate("/explorer", { replace: true });
+																		setOpenTransaction(null);
+																	}}
 																/>
-															</div>
-														</>
-													)}
+																<motion.div
+																	key="desktop-panel"
+																	initial={{ x: "100%" }}
+																	animate={{ x: 0 }}
+																	exit={{ x: "100%" }}
+																	transition={{
+																		type: "tween",
+																		duration: 0.4,
+																		ease: "easeInOut",
+																	}}
+																	className="fixed right-0 top-0 bottom-0 w-[calc(100vw-150px)] bg-[#04131F] z-50 border-none rounded-xl flex flex-col overflow-hidden"
+																>
+																	<div className="flex items-center justify-between pr-4 py-4">
+																		<h1 className="text-[20px] text-left px-5 lg:text-[32px] text-white font-bold">
+																			Transaction Details
+																		</h1>
+																		<button
+																			onClick={() => {
+																				close();
+																				navigate("/explorer", {
+																					replace: true,
+																				});
+																				setOpenTransaction(null);
+																			}}
+																			className="bg-[#09243B] rounded-lg p-1.5 hover:bg-[#0D374E] transition"
+																		>
+																			<IoMdClose className="size-6 text-white" />
+																		</button>
+																	</div>
+																	<hr className="border border-[#09243B] my-6" />
+
+																	<TransactionHistoryDetails
+																		transaction={transaction}
+																	/>
+																</motion.div>
+															</>
+														)}
+													</AnimatePresence>
 												</>
 											);
 										}}
@@ -164,44 +181,60 @@ function TransactionHistory() {
 														<History transaction={transaction} />
 													</Popover.Button>
 
-													{isOpen && (
-														<>
-															<div
-																onClick={() => {
-																	close();
-																	navigate("/explorer", { replace: true });
-																	setOpenTransaction(null);
-																}}
-																className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ease-out"
-															/>
-															<div
-																className={`fixed bottom-0 w-screen right-0 h-[80%] bg-[#04131F] z-50 border-none rounded-t-xl flex flex-col overflow-hidden transform transition-transform duration-300 ease-in-out ${
-																	isOpen ? "translate-y-0" : "translate-y-full"
-																}`}
-															>
-																<div className="flex items-center justify-between pr-4 py-4">
-																	<h1 className="text-[20px] text-left px-5 lg:text-[32px] text-white font-bold">
-																		Transaction Details
-																	</h1>
-																	<button
-																		onClick={() => {
-																			close();
-																			navigate("/explorer", { replace: true });
-																			setOpenTransaction(null);
-																		}}
-																		className="bg-[#09243B] rounded-lg p-1.5 hover:bg-[#0D374E] transition"
-																	>
-																		<IoMdClose className="size-6 text-white" />
-																	</button>
-																</div>
-																<hr className="border border-[#09243B] my-6" />
-
-																<TransactionHistoryDetails
-																	transaction={transaction}
+													<AnimatePresence>
+														{isOpen && (
+															<>
+																<motion.div
+																	key="overlay"
+																	initial={{ opacity: 0 }}
+																	animate={{ opacity: 0.5 }}
+																	exit={{ opacity: 0 }}
+																	transition={{ duration: 0.3 }}
+																	className="fixed inset-0 bg-black z-40"
+																	onClick={() => {
+																		close();
+																		navigate("/explorer", { replace: true });
+																		setOpenTransaction(null);
+																	}}
 																/>
-															</div>
-														</>
-													)}
+																<motion.div
+																	key="mobile-panel"
+																	initial={{ y: "100%" }}
+																	animate={{ y: 0 }}
+																	exit={{ y: "100%" }}
+																	transition={{
+																		type: "tween",
+																		duration: 0.4,
+																		ease: "easeInOut",
+																	}}
+																	className="fixed bottom-0 w-screen right-0 h-[80%] bg-[#04131F] z-50 border-none rounded-t-xl flex flex-col overflow-hidden"
+																>
+																	<div className="flex items-center justify-between pr-4 py-4">
+																		<h1 className="text-[20px] text-left px-5 lg:text-[32px] text-white font-bold">
+																			Transaction Details
+																		</h1>
+																		<button
+																			onClick={() => {
+																				close();
+																				navigate("/explorer", {
+																					replace: true,
+																				});
+																				setOpenTransaction(null);
+																			}}
+																			className="bg-[#09243B] rounded-lg p-1.5 hover:bg-[#0D374E] transition"
+																		>
+																			<IoMdClose className="size-6 text-white" />
+																		</button>
+																	</div>
+																	<hr className="border border-[#09243B] my-6" />
+
+																	<TransactionHistoryDetails
+																		transaction={transaction}
+																	/>
+																</motion.div>
+															</>
+														)}
+													</AnimatePresence>
 												</>
 											);
 										}}
