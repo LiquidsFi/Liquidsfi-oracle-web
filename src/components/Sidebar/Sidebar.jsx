@@ -6,7 +6,7 @@ import logo from "../../assets/images/ZKLiquidIcon.svg";
 import sidebarLinks from "../../constant/sidebarLinks";
 
 import logoText from "../../assets/images/logotext.svg";
-import { useContext } from "react";
+import { Fragment, useContext } from "react";
 import { SidebarContext } from "../../context/SidebarContext";
 
 import SidebarDropdown from "./SidebarDropdown";
@@ -81,13 +81,33 @@ function Sidebar({ currentPageLinks }) {
               )
             )} */}
 
-						{sidebarLinks.map((link) =>
-							link.hasOwnProperty("children") ? (
+						{sidebarLinks.map((link, index) => {
+							return link.hasOwnProperty("children") ? (
 								<SidebarDropdown link={link} key={link.title} />
 							) : (
-								<SidebarLink link={link} key={link.title} />
-							)
-						)}
+								<div key={index}>
+									<div
+										className={`${
+											isOpen ? "md:block" : "md:hidden xl:block"
+										} pl-4 text-[14px] mb-3 font-medium text-white`}
+									>
+										{link.heading}
+									</div>
+
+									<ul className="space-y-1">
+										{link.links.map((link, idx) => (
+											<Fragment key={idx}>
+												<SidebarLink link={link} key={link.heading} />
+											</Fragment>
+										))}
+									</ul>
+
+									{index !== sidebarLinks.length - 1 && (
+										<hr className="my-8 border-[#173E4A]" />
+									)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			</motion.aside>
