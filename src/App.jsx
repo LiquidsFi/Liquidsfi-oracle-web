@@ -48,7 +48,7 @@ const explorerRouter = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Explorer /> }, // /
-      { path: ":id", element: <Explorer /> }, // /:id
+      { path: "/msg/:id", element: <Explorer /> }, // /:id
       { path: "*", element: <ErrorPage /> },
     ],
   },
