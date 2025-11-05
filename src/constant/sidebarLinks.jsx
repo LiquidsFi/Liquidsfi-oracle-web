@@ -22,12 +22,12 @@ export default [
       {
         title: "Multichain Bridge",
         icon: <Repeat />,
-        path: "https://bridge.liquids.fi",
+        path: "bridge.liquids.fi/",
       },
       {
         title: "Liquidity Protocol",
         icon: <Bubble />,
-        path: "https://bridge.liquids.fi/liquidity",
+        path: "bridge.liquids.fi/liquidity",
       },
 
       // {
@@ -42,12 +42,12 @@ export default [
     links: [
       {
         title: "Explorer",
-        path: "https://explorer.liquids.fi",
+        path: "explorer.liquids.fi/",
         icon: <PiBinocularsBold className="text-[24px]" />,
       },
       {
         title: "Lane Status",
-        path: "https://explorer.liquids.fi/lane-status",
+        path: "explorer.liquids.fi/lane-status",
         icon: <PiSwap className="text-[24px]" />,
       },
     ],
