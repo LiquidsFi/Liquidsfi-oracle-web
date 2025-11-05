@@ -4,15 +4,7 @@ import clsx from "clsx";
 import { useContext } from "react";
 
 function SidebarLink({ link }) {
-  const location = useLocation();
-  const active = window.location === link.path;
-
-  console.log("the path location is", window.location?.href);
-  console.log(
-    "the actual path",
-    link?.path,
-    link?.path === window.location?.href
-  );
+  const active = link?.path === window.location?.href;
 
   const { isOpen } = useContext(SidebarContext);
 
