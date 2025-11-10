@@ -99,7 +99,7 @@ function TransactionHistory() {
                             onClick={() => {
                               const next = isOpen ? null : i;
                               setOpenTransaction(next);
-                              updateUrl(next ? null : transaction);
+                              updateUrl(isOpen ? null : transaction);
                             }}
                             className="w-full focus:outline-none"
                           >
@@ -174,7 +174,7 @@ function TransactionHistory() {
                             onClick={() => {
                               const next = isOpen ? null : i;
                               setOpenTransaction(next);
-                              updateUrl(next ? null : transaction);
+                              updateUrl(isOpen ? null : transaction);
                             }}
                             className="w-full focus:outline-none"
                           >
