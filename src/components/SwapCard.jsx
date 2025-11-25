@@ -446,6 +446,11 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
         resSign?.signedTxXdr,
         network?.network
       );
+
+      console.log(
+        "send tokens to evm response",
+        "0x" + res?.resultMetaJson?.v4?.soroban_meta?.return_value?.bytes
+      );
       const trxData = {
         amount: amount,
         from: selectedSourceChain?.id,
@@ -544,7 +549,7 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
       if (selectedSourceChain?.chainType === "soroban") {
         await handleTransferFromXLM();
       } else if (selectedSourceChain?.chainType === "evm") {
-        await handleTransferToXLM();
+        await handleTransferFromEVM();
       }
     } catch (e) {
       console.log(e);
@@ -563,7 +568,7 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
     return confirmHash;
   }
 
-  async function handleTransferToXLM() {
+  async function handleTransferFromEVM() {
     setIsProcessing(() => true);
 
     try {
