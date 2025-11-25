@@ -26,7 +26,6 @@ import WalletsModal from "./WalletsModal";
 import {
   abi,
   pools,
-
   tokens,
   chainIds,
   native,
@@ -249,7 +248,6 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
   ]);
 
   useEffect(() => {
-    console.log("run get bridge fee");
     async function fetchBridgeFeeXLM() {
       const body = {
         pubKey: userKey,

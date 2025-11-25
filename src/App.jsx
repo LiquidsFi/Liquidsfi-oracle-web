@@ -10,6 +10,7 @@ import Liquidity from "./pages/add-liquidity/Liquidity";
 import { SidebarContextProvider } from "./context/SidebarContext";
 import Explorer from "./pages/swap/Explorer.jsx";
 import SupportedChain from "./pages/swap/SupportedChain.jsx";
+import NotFound from "./common/NotFound.jsx";
 
 const isBridge =
   typeof window !== "undefined" && window.location.host.startsWith("bridge.");
@@ -28,6 +29,19 @@ const bridgeRouter = createBrowserRouter([
       { path: "supported-chains", element: <SupportedChain /> },
       { path: "faucet", element: <Bridge /> },
       { path: "*", element: <ErrorPage /> },
+    ],
+  },
+  {
+    path: "/",
+    element: <DashboardLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      { index: true, element: <Trade /> },
+      { path: "transfers/:id", element: <Trade /> },
+      { path: "liquidity", element: <Liquidity /> },
+      // { path: "supported-chains", element: <SupportedChain /> },
+      { path: "faucet", element: <Bridge /> },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);
