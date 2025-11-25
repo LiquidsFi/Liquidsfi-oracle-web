@@ -60,6 +60,7 @@ import {
 } from "@stellar/freighter-api";
 import { SidebarContext } from "../context/SidebarContext";
 import axios from "axios";
+import { handleUpsertTransaction } from "../services";
 
 function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
   const [recheckTrustline, setRecheckTrustline] = useState(0);
@@ -447,12 +448,25 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
         network?.network
       );
 
-      console.log(
-        "send tokens to evm response",
-        "0x" + res?.resultMetaJson?.v4?.soroban_meta?.return_value?.bytes
-      );
+      const msgData = {
+        tx_id:
+          "0x" + res?.resultMetaJson?.v4?.soroban_meta?.return_value?.bytes,
+        origin_tx_hash: res?.txHash,
+        origin_id: chainIds[selectedSourceChain?.id],
+        sender: userKey,
+        origin_contract: pools[selectedSourceChain?.id],
+        destination_id: chainIds[selectedDestinationChain?.id],
+        destination_contract: pools[selectedDestinationChain?.id],
+        tx_data: "000000000000",
+        token_contract: switchToken[selectedSourceChain?.id],
+        token_amount: amount,
+      };
+
+      await handleUpsertTransaction(msgData);
+
       const trxData = {
         amount: amount,
+        tx_data: "000000000000",
         from: selectedSourceChain?.id,
         to: selectedDestinationChain?.id,
         name: switchToken.symbol,
@@ -594,8 +608,28 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
         value: bridgeFee,
       });
 
+      //   const res = await tx.wait();
+
       const res = await awaitTransactionConfirmation(tx);
       setTrxHash(() => res);
+
+      const msg_id = res?.logs[1].topics[1];
+      const origin_hash = res?.transactionHash;
+
+      const msgData = {
+        tx_id: msg_id,
+        origin_tx_hash: origin_hash,
+        origin_id: chainIds[selectedSourceChain?.id],
+        sender: address,
+        origin_contract: pools[selectedSourceChain?.id],
+        destination_id: chainIds[selectedDestinationChain?.id],
+        destination_contract: pools[selectedDestinationChain?.id],
+        tx_data: "000000000000",
+        token_contract: switchToken[selectedSourceChain?.id],
+        token_amount: amount,
+      };
+
+      await handleUpsertTransaction(msgData);
 
       const trxData = {
         amount: amount,
