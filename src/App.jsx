@@ -33,17 +33,17 @@ const bridgeRouter = createBrowserRouter([
 ]);
 
 const explorerRouter = createBrowserRouter([
-	{
-		path: "/",
-		element: <DashboardLayout />,
-		errorElement: <ErrorPage />,
-		children: [
-			{ index: true, element: <Explorer /> },
-			{ path: "msg/:id", element: <Explorer /> },
-			{ path: "supported-chains", element: <SupportedChain /> },
-			{ path: "*", element: <NotFound /> },
-		],
-	},
+  {
+    path: "/",
+    element: <DashboardLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      { index: true, element: <Explorer /> },
+      { path: "msg/:id", element: <Explorer /> },
+      { path: "chains", element: <SupportedChain /> },
+      { path: "*", element: <ErrorPage /> },
+    ],
+  },
 ]);
 
 export default function App() {
