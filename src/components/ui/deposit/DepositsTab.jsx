@@ -22,6 +22,8 @@ const DepositsTab = () => {
     setWalletBalances,
     depositBalances,
     selectedSourceChain,
+    walletIsConnected,
+    needConnectWallet,
   } = useContext(SidebarContext);
 
   const tokenOptions = Object.entries(tokens).map(([symbol, data]) => ({
