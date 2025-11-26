@@ -6,11 +6,11 @@ import { useContext, useEffect, useState } from "react";
 function SidebarLink({ link }) {
   const [active, setActive] = useState(false);
   const { isOpenSidebar, setIsOpenSidebar } = useContext(SidebarContext);
-  // const location = useLocation();
+  const location = useLocation();
 
   useEffect(() => {
     const active =
-      link?.path === `${window?.location?.origin}${window?.location?.pathname}`;
+      link?.path === `${window?.location?.origin}${location?.pathname}`;
     setActive(active);
   }, [link?.path]);
 
