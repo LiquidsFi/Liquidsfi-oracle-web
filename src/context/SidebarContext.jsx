@@ -87,6 +87,12 @@ const SidebarContextProvider = ({ children }) => {
   const [switchToken, setSwitchToken] = useState(tokenOptions[0]);
   const [successModalIsOpen, setSuccessModalIsOpen] = useState(false);
 
+  const walletIsConnected =
+    (selectedSourceChain?.chainType === "evm" && address) ||
+    (selectedSourceChain?.chainType === "soroban" && userKey);
+
+  const needConnectWallet = !selectedSourceChain;
+
   async function fetchBalanceAll(type, chain, account, token, decimals) {
     try {
       if (!account) {
@@ -356,6 +362,8 @@ const SidebarContextProvider = ({ children }) => {
         depositBalances,
         isOpenSidebar,
         setIsOpenSidebar,
+        walletIsConnected,
+        needConnectWallet,
       }}
     >
       {children}

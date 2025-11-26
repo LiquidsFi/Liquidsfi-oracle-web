@@ -50,6 +50,9 @@ const DepositWithdrawModal = ({ isOpenDeposit, onClose, action }) => {
     walletBalances,
     setWalletBalances,
     depositBalances,
+    setIsOpen,
+    walletIsConnected,
+    needConnectWallet,
   } = useContext(SidebarContext);
 
   const [processMessage, setProcessMessage] = useState("");
@@ -61,153 +64,160 @@ const DepositWithdrawModal = ({ isOpenDeposit, onClose, action }) => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      if (selectedSourceChain?.chainType === "evm") {
-        try {
-          const ethQuantity = parseUnits(values?.depositQuantity, tokenDes);
+      if (!walletIsConnected) {
+        setIsOpen(true);
+        return null;
+      } else {
+        if (selectedSourceChain?.chainType === "evm") {
+          try {
+            const ethQuantity = parseUnits(values?.depositQuantity, tokenDes);
 
-          const onchainFunction =
-            action === "deposit"
-              ? "addLiquidity"
-              : action === "withdraw"
-              ? "removeLiquidity"
-              : null;
+            const onchainFunction =
+              action === "deposit"
+                ? "addLiquidity"
+                : action === "withdraw"
+                ? "removeLiquidity"
+                : null;
 
-          let allowance = 0;
-          let protocolToken = "";
+            let allowance = 0;
+            let protocolToken = "";
 
-          if (action === "deposit") {
-            setProcessMessage("Reading allowance...");
-            const allow = await readContract(config, {
-              abi: erc20Abi,
-              address: switchToken?.[selectedSourceChain?.id],
-              functionName: "allowance",
-              args: [address, pools[selectedSourceChain?.id]],
-              account: address,
-              chainId: selectedSourceChain?.id,
-            });
-            allowance = formatUnits(allow, tokenDes);
-          } else if (action === "withdraw") {
-            setProcessMessage("reading protocol token...");
-            protocolToken = await readContract(config, {
-              abi: abi,
-              address: pools[selectedSourceChain?.id],
-              functionName: "protocolToken",
-              args: [switchToken?.[selectedSourceChain?.id]],
-            });
-
-            setProcessMessage("reading allowance...");
-            const allow = await readContract(config, {
-              abi: erc20Abi,
-              address: protocolToken,
-              functionName: "allowance",
-              args: [address, pools[selectedSourceChain?.id]],
-              account: address,
-              chainId: selectedSourceChain?.id,
-            });
-
-            allowance = formatUnits(allow, tokenDes);
-
-            // setAllowance(formatUnits(result2, tokenDecimal));
-          }
-
-          if (allowance < values?.depositQuantity) {
-            setProcessMessage("approving allowance...");
             if (action === "deposit") {
-              const tx = await writeContract(config, {
+              setProcessMessage("Reading allowance...");
+              const allow = await readContract(config, {
                 abi: erc20Abi,
-                address: switchToken[selectedSourceChain?.id],
-                functionName: "approve",
-                args: [pools[selectedSourceChain?.id], ethQuantity],
+                address: switchToken?.[selectedSourceChain?.id],
+                functionName: "allowance",
+                args: [address, pools[selectedSourceChain?.id]],
+                account: address,
+                chainId: selectedSourceChain?.id,
               });
-              await awaitTransactionConfirmation(tx);
-              console.log("approval success", tx);
+              allowance = formatUnits(allow, tokenDes);
             } else if (action === "withdraw") {
-              const tx = await writeContract(config, {
+              setProcessMessage("reading protocol token...");
+              protocolToken = await readContract(config, {
+                abi: abi,
+                address: pools[selectedSourceChain?.id],
+                functionName: "protocolToken",
+                args: [switchToken?.[selectedSourceChain?.id]],
+              });
+
+              setProcessMessage("reading allowance...");
+              const allow = await readContract(config, {
                 abi: erc20Abi,
                 address: protocolToken,
-                functionName: "approve",
-                args: [pools[selectedSourceChain?.id], ethQuantity],
+                functionName: "allowance",
+                args: [address, pools[selectedSourceChain?.id]],
+                account: address,
+                chainId: selectedSourceChain?.id,
               });
 
-              await awaitTransactionConfirmation(tx);
-              console.log("approval success", tx);
+              allowance = formatUnits(allow, tokenDes);
+
+              // setAllowance(formatUnits(result2, tokenDecimal));
             }
+
+            if (allowance < values?.depositQuantity) {
+              setProcessMessage("approving allowance...");
+              if (action === "deposit") {
+                const tx = await writeContract(config, {
+                  abi: erc20Abi,
+                  address: switchToken[selectedSourceChain?.id],
+                  functionName: "approve",
+                  args: [pools[selectedSourceChain?.id], ethQuantity],
+                });
+                await awaitTransactionConfirmation(tx);
+                console.log("approval success", tx);
+              } else if (action === "withdraw") {
+                const tx = await writeContract(config, {
+                  abi: erc20Abi,
+                  address: protocolToken,
+                  functionName: "approve",
+                  args: [pools[selectedSourceChain?.id], ethQuantity],
+                });
+
+                await awaitTransactionConfirmation(tx);
+                console.log("approval success", tx);
+              }
+            }
+
+            if (!onchainFunction) {
+              return null;
+            }
+            setProcessMessage("submitting transaction...");
+
+            const tx = await writeContract(config, {
+              abi: abi,
+              address: pools[selectedSourceChain?.id],
+              functionName: onchainFunction,
+              args: [switchToken?.[selectedSourceChain?.id], ethQuantity],
+            });
+
+            const res = await awaitTransactionConfirmation(tx);
+            setMessageId(res?.transactionHash);
+
+            console.log("the res", res);
+            onClose();
+            setSuccessModalIsOpen(true);
+          } catch (e) {
+            console.log(e);
+          } finally {
+            setProcessMessage("");
+            // setIsProcessing(false);
           }
+        } else if (selectedSourceChain?.chainType === "soroban") {
+          try {
+            const args = [
+              { type: "Address", value: userKey },
+              { type: "Address", value: switchToken[selectedSourceChain?.id] },
+              { type: "i128", value: values?.depositQuantity },
+            ];
 
-          if (!onchainFunction) {
-            return null;
+            // console.log(args);
+
+            const onchainFunction =
+              action === "deposit"
+                ? "add_liquidity"
+                : action === "withdraw"
+                ? "remove_liquidity"
+                : null;
+
+            setProcessMessage("submitting transaction...");
+            const resSign = await anyInvokeMainnet(
+              userKey,
+              BASE_FEE,
+              network?.network,
+              pools[selectedSourceChain?.id],
+              onchainFunction,
+              args,
+              ""
+            );
+
+            const res = await sendTransactionMainnet(
+              resSign?.signedTxXdr,
+              network?.network
+            );
+
+            onClose();
+            setSuccessModalIsOpen(true);
+
+            setMessageId(res?.txHash);
+          } catch (e) {
+            console.log(e);
+          } finally {
+            setProcessMessage("");
           }
-          setProcessMessage("submitting transaction...");
-
-          const tx = await writeContract(config, {
-            abi: abi,
-            address: pools[selectedSourceChain?.id],
-            functionName: onchainFunction,
-            args: [switchToken?.[selectedSourceChain?.id], ethQuantity],
-          });
-
-          const res = await awaitTransactionConfirmation(tx);
-          setMessageId(res?.transactionHash);
-
-          console.log("the res", res);
-          onClose();
-          setSuccessModalIsOpen(true);
-        } catch (e) {
-          console.log(e);
-        } finally {
-          setProcessMessage("");
-          // setIsProcessing(false);
         }
-      } else if (selectedSourceChain?.chainType === "soroban") {
-        try {
-          const args = [
-            { type: "Address", value: userKey },
-            { type: "Address", value: switchToken[selectedSourceChain?.id] },
-            { type: "i128", value: values?.depositQuantity },
-          ];
 
-          // console.log(args);
-
-          const onchainFunction =
-            action === "deposit"
-              ? "add_liquidity"
-              : action === "withdraw"
-              ? "remove_liquidity"
-              : null;
-
-          setProcessMessage("submitting transaction...");
-          const resSign = await anyInvokeMainnet(
-            userKey,
-            BASE_FEE,
-            network?.network,
-            pools[selectedSourceChain?.id],
-            onchainFunction,
-            args,
-            ""
-          );
-
-          const res = await sendTransactionMainnet(
-            resSign?.signedTxXdr,
-            network?.network
-          );
-
-          onClose();
-          setSuccessModalIsOpen(true);
-
-          setMessageId(res?.txHash);
-        } catch (e) {
-          console.log(e);
-        } finally {
-          setProcessMessage("");
-        }
+        onClose();
+        setSubmitting(false);
+        setProcessMessage("");
       }
-
-      onClose();
     } catch (error) {
       console.error("Error:", error);
     } finally {
-      setSubmitting(false);
-      setProcessMessage("");
+      // setSubmitting(false);
+      // setProcessMessage("");
     }
   };
 
@@ -230,7 +240,7 @@ const DepositWithdrawModal = ({ isOpenDeposit, onClose, action }) => {
       <div className="space-y-3">
         <Formik
           initialValues={initialValues}
-          validationSchema={validationSchema}
+          validationSchema={walletIsConnected && validationSchema}
           onSubmit={handleSubmit}
         >
           {({ setFieldValue, values, isSubmitting }) => (
@@ -291,14 +301,24 @@ const DepositWithdrawModal = ({ isOpenDeposit, onClose, action }) => {
               <div className="border-b border-dark-300 my-3"></div>
 
               <div className="pt-5">
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                  processMessage={processMessage}
-                >
-                  Confirm Transaction
-                </Button>
+                {!walletIsConnected ? (
+                  <Button
+                    className="w-full"
+                    disabled={isSubmitting}
+                    processMessage={processMessage}
+                  >
+                    Connect Wallet
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting}
+                    processMessage={processMessage}
+                  >
+                    Confirm Transaction
+                  </Button>
+                )}
               </div>
             </Form>
           )}
