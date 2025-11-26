@@ -12,7 +12,7 @@ function SidebarLink({ link }) {
     const active =
       link?.path === `${window?.location?.origin}${location?.pathname}`;
     setActive(active);
-  }, [link?.path]);
+  }, [link?.path, location?.pathname]);
 
   return (
     <NavLink
