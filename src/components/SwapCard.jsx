@@ -58,6 +58,7 @@ import {
   signTransaction,
   getAddress,
   addToken,
+  requestAccess,
 } from "@stellar/freighter-api";
 import { SidebarContext } from "../context/SidebarContext";
 import axios from "axios";
@@ -110,15 +111,12 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
 
     selectedDestinationChain,
     setSelectedDestinationChain,
-    isXLM,
+
     userPubKey,
-    setUserPubKey,
+
     selectedNetwork,
     allChains,
-    setSelectedNetwork,
-    freighterConnecting,
-    claimableCashback,
-    setClaimableCashback,
+
     updateBalances,
     setUpdateBalances,
     userKey,
@@ -145,11 +143,14 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
       if (StrKey.isValidContract(addr)) {
         setHasTrust(true);
       } else if (StrKey.isValidEd25519PublicKey(addr)) {
+        const selectedNetwork = selectedSourceChain?.testnet
+          ? "TESTNET"
+          : "PUBLIC";
         async function fetchHasTrust() {
           const accountHasTrust = await getTrustline(
             addr,
-            switchToken[12000000],
-            "TESTNET"
+            switchToken[selectedDestinationChain?.id],
+            selectedNetwork
           );
 
           setHasTrust(accountHasTrust);
@@ -162,52 +163,7 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
 
   useEffect(() => {
     handleAdressIsValid(recipientAddr);
-  }, [selectedDestinationChain?.name]);
-
-  //   useEffect(() => {
-  //     async function fetchCashback() {
-  //       const body = {
-  //         pubKey: userPubKey,
-  //         fee: BASE_FEE,
-  //         networkPassphrase: selectedNetwork?.networkPassphrase,
-  //         contractId: pools[12000000],
-  //         operation: "get_claimable_cashback",
-  //         args: [
-  //           { type: "Address", value: userPubKey },
-  //           {
-  //             type: "Address",
-  //             value: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-  //           },
-  //         ],
-  //       };
-
-  //       const response = await axios.post(
-  //         `${STELLAR_SDK_SERVER_URL}/simulateTransaction`,
-  //         body,
-  //         {
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //         }
-  //       );
-
-  //       const receivedCashback = JSON.parse(response?.data?.data, (key, value) =>
-  //         /^\d+$/.test(value) ? BigInt(value) : value
-  //       );
-
-  //       const cashback = Soroban.formatTokenAmount(
-  //         receivedCashback?.claimable_amount?.toString(),
-  //         7
-  //       );
-
-  //       setClaimableCashback(cashback);
-
-  //       // setBalance(() => amount);
-  //     }
-  //     if (userPubKey && selectedSourceChain?.id === 1200) {
-  //       fetchCashback();
-  //     }
-  //   }, [userPubKey, selectedSourceChain, updateBalances]);
+  }, [selectedDestinationChain?.id, recheckTrustline]);
 
   useEffect(() => {
     async function fetchBalance() {
@@ -262,7 +218,7 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
   }, [
     userKey,
     selectedNetwork,
-    selectedSourceChain,
+    selectedSourceChain?.id,
     updateBalances,
     switchToken?.id,
   ]);
@@ -273,7 +229,7 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
         pubKey: userKey,
         fee: BASE_FEE,
         network: network?.network,
-        contractId: pools[12000000],
+        contractId: pools[selectedSourceChain?.id],
         operation: "get_bridge_fee",
         args: [],
       };
@@ -300,7 +256,12 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
 
       // setBalance(() => amount);
     }
-    if (userKey && selectedSourceChain?.id === 12000000 && amount) {
+    if (
+      userKey &&
+      (selectedSourceChain?.id === 12000000 ||
+        selectedSourceChain?.id === 14000000) &&
+      amount
+    ) {
       fetchBridgeFeeXLM();
     }
 
@@ -309,10 +270,10 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
         pubKey: userPubKey,
         fee: BASE_FEE,
         networkPassphrase: selectedNetwork?.networkPassphrase,
-        contractId: pools[12000000],
+        contractId: pools[selectedSourceChain?.id],
         operation: "get_total_debit_at_transfer",
         args: [
-          { type: "Address", value: switchToken[12000000] },
+          { type: "Address", value: switchToken[selectedSourceChain?.id] },
           { type: "i128", value: amount },
         ],
       };
@@ -342,8 +303,8 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
     amount,
     userKey,
     selectedNetwork,
-    selectedSourceChain,
-    selectedDestinationChain,
+    selectedSourceChain?.id,
+    selectedDestinationChain?.id,
     switchToken?.id,
   ]);
   useEffect(() => {
@@ -393,8 +354,8 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
     amount,
     address,
     selectedNetwork,
-    selectedSourceChain,
-    selectedDestinationChain,
+    selectedSourceChain?.id,
+    selectedDestinationChain?.id,
     switchToken?.id,
   ]);
 
@@ -425,9 +386,17 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
   async function handleChangeTrustline() {
     setIsProcessing(true);
     try {
+      console.log("the resc", recipientAddr);
+      console.log("the connected", userKey);
+      if (userKey !== recipientAddr) {
+        const publicKey = (await requestAccess()).address;
+      }
+      const selectedNetwork = selectedSourceChain?.testnet
+        ? "TESTNET"
+        : "PUBLIC";
       await addToken({
-        contractId: switchToken[12000000],
-        networkPassphrase: Networks[switchToken.network],
+        contractId: switchToken[selectedDestinationChain?.id],
+        networkPassphrase: Networks[selectedNetwork],
       });
     } catch (e) {
       console.log(e);
@@ -547,10 +516,10 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
   }, [
     address,
     chain,
-    selectedSourceChain,
+    selectedSourceChain?.id,
     isTransfer,
     updateBalances,
-    switchToken.id,
+    switchToken?.id,
   ]);
 
   async function handleApprove() {
@@ -582,6 +551,9 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
       if (selectedSourceChain?.chainType === "soroban") {
         await handleTransferFromXLM();
       } else if (selectedSourceChain?.chainType === "evm") {
+        if (needApproval) {
+          await handleApprove();
+        }
         await handleTransferFromEVM();
       }
     } catch (e) {
@@ -633,8 +605,17 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
       if (res) {
         setTrxHash(() => res);
 
-        const msg_id = res?.logs[1].topics[1];
+        let msg_id;
         const origin_hash = res?.transactionHash;
+
+        if (selectedSourceChain?.testnet) {
+          msg_id = res?.logs[1].topics[1];
+        } else {
+          msg_id = res?.logs[2].topics[1];
+        }
+
+        console.log("the returned message id", msg_id);
+        console.log("the whole response", res);
 
         const msgData = {
           tx_id: msg_id,
@@ -817,13 +798,15 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
                   placeholder="Paste recipient here"
                   className={`block w-full text-black px-2 h-[45px] text-[12.5px] font-normal  placeholder-gray-800 bg-gray-300 border  rounded-sm  ${
                     !hasTrust &&
-                    selectedDestinationChain?.id === 12000000 &&
+                    (selectedDestinationChain?.id === 12000000 ||
+                      selectedDestinationChain?.id === 14000000) &&
                     "text-red-600"
                   }`}
                   value={recipientAddr}
                 />
 
-                {selectedDestinationChain?.id === 12000000 &&
+                {(selectedDestinationChain?.id === 12000000 ||
+                  selectedDestinationChain?.id === 14000000) &&
                   (hasTrust ? (
                     <div className="mt-0 absolute inset-y-0 right-0 flex items-center pr-2 ">
                       <TickCircle
@@ -882,7 +865,9 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
             >
               Not a Valid {selectedDestinationChain?.name} Address
             </button>
-          ) : !hasTrust && selectedDestinationChain?.id === 12000000 ? (
+          ) : !hasTrust &&
+            (selectedDestinationChain?.id === 12000000 ||
+              selectedDestinationChain?.id === 14000000) ? (
             <Button
               disabled={
                 !amount || !selectedDestinationChain || !selectedSourceChain
@@ -904,18 +889,22 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
                   <span className="ml-2">Processing...</span>
                 </>
               </Button>
-            ) : needApproval && selectedSourceChain?.id !== 12000000 ? (
-              <Button disabled={!amount} onClick={handleApprove}>
-                Approve
-              </Button>
             ) : (
+              //  : needApproval &&
+              //   selectedSourceChain?.id !== 12000000 &&
+              //   selectedSourceChain?.id !== 14000000 ? (
+              //   <Button disabled={!amount} onClick={handleApprove}>
+              //     Approve & Submit
+              //   </Button>
+              // )
+
               <Button
                 disabled={
                   !amount || !selectedDestinationChain || !selectedSourceChain
                 }
                 onClick={handleTransferTokens}
               >
-                Transfer Now
+                Approve & Transfer
               </Button>
             )
           ) : (

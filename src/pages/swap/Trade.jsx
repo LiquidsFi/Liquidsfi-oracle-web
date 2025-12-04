@@ -13,7 +13,7 @@ import { SidebarContext } from "../../context/SidebarContext";
 
 function Trade() {
   const isMd = useMediaQuery("(min-width: 1024px)");
-  const { chain, address } = useAccount();
+  const { chain } = useAccount();
 
   const [selectedToken] = useState(null);
   const [transactionData, setTransactionData] = useState([]);
@@ -26,8 +26,14 @@ function Trade() {
   const [userKeyXLM, setUserKeyXLM] = useState("");
   const [, setNetworkXLM] = useState("");
 
-  const { messageId, setMessageId, userKey, selectedSourceChain } =
-    useContext(SidebarContext);
+  const {
+    messageId,
+    setMessageId,
+    userKey,
+    selectedSourceChain,
+    address,
+    testnetIsSelected,
+  } = useContext(SidebarContext);
 
   const [isModalOpen] = useState(false);
 
@@ -50,7 +56,10 @@ function Trade() {
     <>
       <div className="text-white">
         <h1 className="heading-primary ">
-          Multichain Bridge (<span className="text-red-300">Beta</span>){" "}
+          Multichain Bridge <span className="mx-2">-</span>
+          <span className="bg-clip-text bg-gradient-to-r  text-transparent from-[#4DFFDF] to-[rgb(77,161,255)]">
+            {testnetIsSelected ? "Testnet" : "Mainnet Beta"}
+          </span>
         </h1>
 
         <TopStats totalBalance={totalBalance} totalRes={totalRes} />

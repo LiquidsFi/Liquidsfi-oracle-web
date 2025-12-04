@@ -31,12 +31,13 @@ function SwitchNetworkDropdown({ width, allChains }) {
   const [isOpen, setIsOpen] = useState(false);
 
   async function handleSwitchChain(id) {
+    const isSoroban = id === 12000000 || id === 14000000;
     const selected = allChains.find(
       (chain) => chain.id === Number(storedChainId)
     );
 
     setSelectedSourceChain(selected);
-    if (id === 12000000) {
+    if (isSoroban) {
       await handleConnectFreighter();
     } else {
       if (!address) {
@@ -136,7 +137,7 @@ function SwitchNetworkDropdown({ width, allChains }) {
               leaveFrom="transform scale-100 opacity-100"
               leaveTo="transform scale-95 opacity-0"
             >
-              <Menu.Items className="absolute right-0 z-10 w-56 py-1 mt-2 origin-top-right border rounded-md shadow-lg bg-dark-400 border-dark-300 ring-1 ring-black ring-opacity-5 focus:outline-none">
+              <Menu.Items className="absolute w-full right-0 z-10  py-1 mt-2 origin-top-right border rounded-md shadow-lg bg-dark-400 border-dark-300 ring-1 ring-black ring-opacity-5 focus:outline-none">
                 {chainOptions?.map((x) => (
                   <Menu.Item key={x?.id}>
                     <button

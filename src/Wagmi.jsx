@@ -19,9 +19,9 @@ const addedChains = [
   avalancheFuji,
   sepolia,
   // bscTestnet,
-  // mainnet,
+  mainnet,
   // bsc,
-  // avalanche,
+  avalanche,
 
   // baseSepolia,
 ];
@@ -34,18 +34,21 @@ export const config = createConfig({
   ],
   transports: {
     [avalancheFuji.id]: http(
-      "https://rpc.ankr.com/avalanche_fuji/8f847212cefcc391509e0aee929c173b83eaf25592bc7f122da333bddb851c79"
+      "https://rpc.ankr.com/avalanche_fuji/75db6dd03e842e010cfad6dd78d69e41afce4e1c023b240abdc28feadb211d08"
+    ),
+    [avalanche.id]: http(
+      "https://rpc.ankr.com/avalanche/75db6dd03e842e010cfad6dd78d69e41afce4e1c023b240abdc28feadb211d08"
     ),
     [sepolia.id]: http(
-      "https://rpc.ankr.com/eth_sepolia/8f847212cefcc391509e0aee929c173b83eaf25592bc7f122da333bddb851c79"
+      "https://rpc.ankr.com/eth_sepolia/75db6dd03e842e010cfad6dd78d69e41afce4e1c023b240abdc28feadb211d08"
     ),
     [mainnet.id]: http(
-      "https://rpc.ankr.com/eth/7a27876214d22119ec2a70f6adb115e7eb45ede20a30f49f945cfcd5563e5a3b"
+      "https://rpc.ankr.com/eth/0d860fa4a096a0a07da1f7abf81b7295cc9db044e76f1a230a0b16d0181e9bc1"
     ),
 
     // [arbitrumSepolia.id]: http(),
     [bsc.id]: http(
-      "https://rpc.ankr.com/bsc/7a27876214d22119ec2a70f6adb115e7eb45ede20a30f49f945cfcd5563e5a3b"
+      "https://rpc.ankr.com/bsc/75db6dd03e842e010cfad6dd78d69e41afce4e1c023b240abdc28feadb211d08"
     ),
     // [bscTestnet.id]: http(),
   },

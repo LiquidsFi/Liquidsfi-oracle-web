@@ -14,6 +14,7 @@ import WalletButton from "./WalletButton";
 import SwitchNetworkDropdown from "./SwitchNetworkDropdown";
 import { AnimatePresence, motion } from "framer-motion";
 import Cashback from "./ui/deposit/Cashback";
+import WalletInfo from "./WalletInfo";
 
 function Header() {
   const {
@@ -98,6 +99,7 @@ function Header() {
             </div>
           </div> */}
           {/* <WalletButton /> */}
+          <WalletInfo />
           <WalletButton />
           {<SwitchNetworkDropdown allChains={allChains} />}
         </div>
@@ -120,7 +122,7 @@ function Header() {
               )}
             >
               <WalletButton width="full" />
-              {<SwitchNetworkDropdown width="full" />}
+              {<SwitchNetworkDropdown width="full" allChains={allChains} />}
             </motion.div>
           )}
 

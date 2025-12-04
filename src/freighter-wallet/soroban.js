@@ -7,6 +7,7 @@ import {
   getNetwork,
   getPublicKey,
   addToken,
+  WatchWalletChanges,
 } from "@stellar/freighter-api";
 
 import {
