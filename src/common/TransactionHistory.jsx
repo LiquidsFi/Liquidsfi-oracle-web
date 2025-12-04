@@ -52,7 +52,7 @@ function TransactionHistory() {
     } else {
       setOpenTransaction(null);
     }
-  }, [transactionIdFromUrl, transactionHistoryData.length]);
+  }, [transactionIdFromUrl, transactionHistoryData?.length]);
 
   function updateUrl(transaction) {
     if (!transaction) navigate("/", { replace: true });
