@@ -221,6 +221,7 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
     selectedSourceChain?.id,
     updateBalances,
     switchToken?.id,
+    network?.network,
   ]);
 
   useEffect(() => {
@@ -520,6 +521,7 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
     isTransfer,
     updateBalances,
     switchToken?.id,
+    network?.network,
   ]);
 
   async function handleApprove() {
