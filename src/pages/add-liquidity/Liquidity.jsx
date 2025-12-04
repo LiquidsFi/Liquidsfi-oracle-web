@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import clsx from "clsx";
 
 import useMediaQuery from "@/hooks/useMediaQuery";
@@ -8,6 +8,7 @@ import DepositsTab from "../../components/ui/deposit/DepositsTab";
 // import BonusRewardTab from "@/components/ui/lend/BonusRewardTab";
 import BonusRewardTab from "../../components/ui/deposit/BonusRewardTab";
 import Stats from "../../components/Stats";
+import { SidebarContext } from "../../context/SidebarContext";
 // import Stats from "@/components/ui/lend/Stats";
 
 function Liquidity(props) {
@@ -19,6 +20,8 @@ function Liquidity(props) {
 
   const bonusRewardTab = <BonusRewardTab />;
 
+  const { testnetIsSelected } = useContext(SidebarContext);
+
   return (
     <>
       {/* <div className="absolute top-0 left-0 w-full h-screen opacity-40 bg-black z-10 text-white text-6xl flex  items-center justify-center">
@@ -27,7 +30,10 @@ function Liquidity(props) {
       </div> */}
       <div className="relative z-0">
         <h3 className="text-[#FFFFFF] heading-primary">
-          Add Liquidity (<span className="text-red-300">Testnet</span>)
+          Add Liquidity<span className="mx-2">-</span>
+          <span className="bg-clip-text bg-gradient-to-r  text-transparent from-[#4DFFDF] to-[rgb(77,161,255)]">
+            {testnetIsSelected ? "Testnet" : "Mainnet Beta"}
+          </span>
         </h3>
 
         <Stats />
@@ -70,7 +76,7 @@ function Liquidity(props) {
               liquidity on siloed blockchains—Soroban to multiple EVM
               blockchains. Provide liquidity and earn great yields.
               <a
-                className="bg-clip-text bg-gradient-to-r ml-2 text-transparent from-[#4DFFDF] to-[#4DA1FF]"
+                className="bg-clip-text bg-gradient-to-r ml-2 text-transparent from-[#4DFFDF] to-[rgb(77,161,255)]"
                 href="https://docs.ZKLiquid.io"
                 target="_blank"
                 rel="noreferrer"

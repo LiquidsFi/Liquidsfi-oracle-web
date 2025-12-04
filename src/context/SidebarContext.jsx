@@ -4,9 +4,10 @@ import {
   ConnectWallet,
   STELLAR_SDK_SERVER_URL,
 } from "../freighter-wallet/soroban";
+import { getNetwork, WatchWalletChanges } from "@stellar/freighter-api";
 import { v4 as uuid } from "uuid";
-import { Soroban } from "@stellar/stellar-sdk";
-import { useAccount, useSwitchChain } from "wagmi";
+import { Soroban, Horizon } from "@stellar/stellar-sdk";
+import { useAccount, useSwitchChain, useBalance } from "wagmi";
 
 import {
   abi,
@@ -27,6 +28,8 @@ import { config } from "../Wagmi";
 import axios from "axios";
 
 const SidebarContext = createContext();
+
+const walletWatcher = new WatchWalletChanges(1000);
 
 const SidebarContextProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,8 +53,24 @@ const SidebarContextProvider = ({ children }) => {
   const [messageId, setMessageId] = useState("");
   const [bridgeBalances, setBridgeBalances] = useState(null);
   const [walletBalances, setWalletBalances] = useState(null);
+
   const [depositBalances, setDepositBalances] = useState(null);
-  // const [messageId, setMessageId] = useState("");
+  const [walletInTestnet, setWalletInTestnet] = useState(false);
+
+  const [nativeBalance, setNativeBalance] = useState(null);
+
+  walletWatcher.watch(({ address, network }) => {
+    setUserKey(address);
+
+    if (selectedSourceChain?.chainType === "soroban") {
+      const selectedNetwork = network === "TESTNET";
+      setWalletInTestnet(selectedNetwork);
+    }
+  });
+
+  const { data, isError, isLoading } = useBalance({
+    address: address,
+  });
 
   const { chains } = useSwitchChain();
 
@@ -61,6 +80,14 @@ const SidebarContextProvider = ({ children }) => {
       name: "Stellar Testnet",
       chainType: "soroban",
       testnet: true,
+      nativeCurrency: { decimals: 7, name: "Stellar Lumen", symbol: "XLM" },
+    },
+    {
+      id: 14000000,
+      name: "Stellar Mainnet",
+      chainType: "soroban",
+      testnet: false,
+      nativeCurrency: { decimals: 7, name: "Stellar Lumen", symbol: "XLM" },
     },
     // { id: 13000000, name: "Stellar Mainnet" },
   ];
@@ -98,7 +125,7 @@ const SidebarContextProvider = ({ children }) => {
       }
       if (type === "soroban") {
         const body = {
-          pubKey: "GARM4SLIWOXUPZMG4YK2IR7YD4OBI4XLFDMXZHPH6IZUSLOJJHINE27Q",
+          pubKey: "GDUDNJQXGLWSVGX5JZOG35FF7PNULGK5ITKPTN7ZBM5DDAZTJVW5ABOZ",
           fee: BASE_FEE,
           network: chainNetwork[chain],
           contractId: token,
@@ -148,18 +175,20 @@ const SidebarContextProvider = ({ children }) => {
               : chainType[chain] === "soroban"
               ? userKey
               : null;
-          const bal = await fetchBalanceAll(
-            chainType[chain],
-            chain,
-            account,
-            protocolTokens[option[chain]],
-            protocolDecimals
-          );
+          if (account) {
+            const bal = await fetchBalanceAll(
+              chainType[chain],
+              chain,
+              account,
+              protocolTokens[option[chain]],
+              protocolDecimals
+            );
 
-          setDepositBalances((cur) => ({
-            ...cur,
-            [option[chain]]: bal || "0",
-          }));
+            setDepositBalances((cur) => ({
+              ...cur,
+              [option[chain]]: bal || "0",
+            }));
+          }
         }
       }
     }
@@ -177,18 +206,21 @@ const SidebarContextProvider = ({ children }) => {
               : chainType[chain] === "soroban"
               ? userKey
               : null;
-          const bal = await fetchBalanceAll(
-            chainType[chain],
-            chain,
-            account,
-            option[chain],
-            tokensDecimals
-          );
 
-          setWalletBalances((cur) => ({
-            ...cur,
-            [option[chain]]: bal || "0",
-          }));
+          if (account) {
+            const bal = await fetchBalanceAll(
+              chainType[chain],
+              chain,
+              account,
+              option[chain],
+              tokensDecimals
+            );
+
+            setWalletBalances((cur) => ({
+              ...cur,
+              [option[chain]]: bal || "0",
+            }));
+          }
         }
       }
     }
@@ -286,6 +318,77 @@ const SidebarContextProvider = ({ children }) => {
     }
   }, [storedChainId]);
 
+  useEffect(() => {
+    async function setNetwork() {
+      if (selectedSourceChain?.chainType === "evm") {
+        const walletNetwork = !!selectedSourceChain?.testnet;
+        setWalletInTestnet(walletNetwork);
+      } else if (selectedSourceChain?.chainType === "soroban") {
+        const nt = await getNetwork();
+
+        setWalletInTestnet(nt?.network === "TESTNET");
+      }
+    }
+    setNetwork();
+  }, [selectedSourceChain?.id]);
+
+  useEffect(() => {
+    async function fetchNativeBalance() {
+      if (selectedSourceChain?.chainType === "evm") {
+        if (data) {
+          setNativeBalance(Number(data?.formatted).toFixed(3));
+        }
+      } else if (selectedSourceChain?.chainType === "soroban") {
+        const networkSelected = !!selectedSourceChain?.testnet
+          ? "TESTNET"
+          : "PUBLIC";
+
+        const xlmToken = {
+          PUBLIC: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+          TESTNET: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+        };
+
+        async function fetchXlmBalance() {
+          try {
+            if (!userKey) {
+              setNativeBalance("0.000");
+            }
+
+            const body = {
+              pubKey: userKey,
+              fee: BASE_FEE,
+              network: networkSelected,
+              contractId: xlmToken[networkSelected],
+              operation: "balance",
+              args: [{ type: "Address", value: userKey }],
+            };
+
+            const response = await axios.post(
+              `${STELLAR_SDK_SERVER_URL}/simulateTransaction`,
+              body,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+
+            if (response) {
+              const amount = Soroban.formatTokenAmount(response?.data?.data, 7);
+              console.log("the amount is", Number(amount).toFixed(3));
+
+              setNativeBalance(Number(amount).toFixed(3));
+            }
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        fetchXlmBalance();
+      }
+    }
+    fetchNativeBalance();
+  }, [address, userKey, selectedSourceChain?.id, data?.formatted]);
+
   async function handleConnectFreighter() {
     setFreighterConnecting(true);
     const res = await ConnectWallet(setUserKey, setNetwork);
@@ -299,6 +402,8 @@ const SidebarContextProvider = ({ children }) => {
 
     return confirmHash;
   }
+
+  const testnetIsSelected = !!selectedSourceChain?.testnet;
 
   return (
     <SidebarContext.Provider
@@ -361,6 +466,10 @@ const SidebarContextProvider = ({ children }) => {
         walletIsConnected,
         needConnectWallet,
         storedChainId,
+        walletInTestnet,
+        setNativeBalance,
+        nativeBalance,
+        testnetIsSelected,
       }}
     >
       {children}

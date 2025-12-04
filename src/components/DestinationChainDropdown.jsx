@@ -1,24 +1,21 @@
-import { Fragment, useEffect, useState, useContext } from "react";
+import { Fragment, useEffect, useContext } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { useAccount, useSwitchChain } from "wagmi";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+
 import clsx from "clsx";
 import { ArrowDown2 } from "iconsax-react";
 import { toast } from "react-toastify";
-import { config } from "../Wagmi";
-import { destinationSelectors } from "../contracts/destination-selector";
+
 import { SidebarContext } from "../context/SidebarContext";
 
 function DestinationChainDropdown({
   width,
-  selectedId,
+
   setSelectedId,
   isMobile,
   allChains,
 }) {
-  const { chain } = useAccount();
-  const { chains, error, isLoading, pendingChainId, switchChain } =
-    useSwitchChain();
+  const { error, isLoading, pendingChainId, switchChain } = useSwitchChain();
   const {
     isXLM,
     selectedSourceChain,
@@ -26,27 +23,15 @@ function DestinationChainDropdown({
     setSelectedDestinationChain,
   } = useContext(SidebarContext);
 
-  // const selectedDestinationChain =
-  //   selectedId && allChains.filter((x) => x.id === selectedId);
+  const networkFilter = selectedSourceChain?.testnet ? "" : "!";
 
   let chainOptions = allChains
     .filter((x) => x.id !== selectedSourceChain?.id)
-    .filter((x) => x.id !== selectedDestinationChain?.id);
-
-  if (selectedSourceChain?.id === 1 || selectedSourceChain?.id === 56) {
-    chainOptions = allChains
-      .filter((x) => x.id !== 1)
-      .filter((x) => x.id !== 56)
-      .filter((x) => x.id !== selectedDestinationChain?.id);
-  }
-
-  // console.log("destination chain Options");
+    .filter((x) => x.id !== selectedDestinationChain?.id)
+    .filter((x) => (networkFilter === "" ? x.testnet : !x.testnet));
 
   const nameLength = isMobile ? 15 : 30;
 
-  function handleSelectXLM() {
-    setSelectedId(() => 2024);
-  }
   useEffect(() => {
     setSelectedId();
   }, [isXLM]);
