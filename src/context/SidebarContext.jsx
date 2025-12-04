@@ -6,7 +6,7 @@ import {
 } from "../freighter-wallet/soroban";
 import { getNetwork, WatchWalletChanges } from "@stellar/freighter-api";
 import { v4 as uuid } from "uuid";
-import { Soroban, Horizon } from "@stellar/stellar-sdk";
+import { Soroban, Horizon, Networks } from "@stellar/stellar-sdk";
 import { useAccount, useSwitchChain, useBalance } from "wagmi";
 
 import {
@@ -61,6 +61,16 @@ const SidebarContextProvider = ({ children }) => {
 
   walletWatcher.watch(({ address, network }) => {
     setUserKey(address);
+
+    async function fetchNetwork() {
+      const nt = await getNetwork();
+
+      setNetwork(nt);
+    }
+
+    fetchNetwork();
+
+    // setNetwork({ network: network, networkPassphrase: Networks.PUBLIC });
 
     if (selectedSourceChain?.chainType === "soroban") {
       const selectedNetwork = network === "TESTNET";
@@ -301,7 +311,7 @@ const SidebarContextProvider = ({ children }) => {
   }, [
     address,
     // chain,
-    selectedSourceChain,
+    selectedSourceChain?.id,
     // isTransfer,
     // updateBalances,
     isOpenDeposit,
