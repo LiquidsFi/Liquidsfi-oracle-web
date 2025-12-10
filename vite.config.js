@@ -23,7 +23,11 @@ import path from "path";
 export default defineConfig({
   build: {
     rollupOptions: {
-      external: ["@safe-window/safe-apps-sdk"],
+      external: [
+        "@safe-window/safe-apps-sdk",
+        "@safe-window/safe-apps-provider",
+        "@safe-window/safe-gateway-typescript-sdk",
+      ],
     },
   },
   plugins: [

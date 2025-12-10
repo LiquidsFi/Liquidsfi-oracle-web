@@ -13,7 +13,7 @@ import {
   avalancheFuji,
 } from "wagmi/chains";
 
-import { walletConnect, safe } from "wagmi/connectors";
+import { walletConnect } from "wagmi/connectors";
 
 const addedChains = [
   avalancheFuji,
@@ -31,7 +31,6 @@ export const config = createConfig({
   chains: addedChains,
   connectors: [
     walletConnect({ projectId: "35c6df36716ecbd04dcc4cedba364876" }),
-    safe(),
   ],
   transports: {
     [avalancheFuji.id]: http(
