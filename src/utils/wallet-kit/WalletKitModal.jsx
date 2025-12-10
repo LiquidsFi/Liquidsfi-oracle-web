@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { WalletKitService } from "./services/global-service";
 import { SidebarContext } from "../../context/SidebarContext";
-import { hello } from "./services/window-service";
 
 export default function WalletKitModal() {
   const [isAvailableMap, setIsAvailableMap] = useState(null);
