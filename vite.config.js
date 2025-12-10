@@ -45,6 +45,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
       "@safe-window/safe-apps-sdk": "@safe-global/safe-apps-sdk",
       "@safe-window/safe-apps-provider": "@safe-global/safe-apps-provider",
+      "@safe-window/safe-gateway-typescript-sdk":
+        "@safe-global/safe-gateway-typescript-sdk",
     },
   },
   server: {
