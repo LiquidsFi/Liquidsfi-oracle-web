@@ -21,6 +21,11 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      external: ["@safe-window/safe-apps-sdk"],
+    },
+  },
   plugins: [
     react(),
     svgr({
@@ -34,19 +39,13 @@ export default defineConfig({
       include: "**/*.svg",
     }),
   ],
-  optimizeDeps: {
-    exclude: ["@wagmi/connectors"],
-  },
+
   define: {
     global: "window",
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@safe-window/safe-apps-sdk": "@safe-global/safe-apps-sdk",
-      "@safe-window/safe-apps-provider": "@safe-global/safe-apps-provider",
-      "@safe-window/safe-gateway-typescript-sdk":
-        "@safe-global/safe-gateway-typescript-sdk",
     },
   },
   server: {

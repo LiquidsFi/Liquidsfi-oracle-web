@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "patch-package",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
@@ -20,11 +19,10 @@
     "@radix-ui/react-progress": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
     "@safe-global/safe-apps-provider": "^0.18.6",
-    "@safe-global/safe-apps-sdk": "~9.1.0",
-    "@safe-global/safe-gateway-typescript-sdk": "^3.23.1",
     "@stellar/freighter-api": "^3.1.0",
     "@stellar/stellar-sdk": "^13.1.0",
     "@tanstack/react-query": "^5.32.0",
+    "@wagmi/core": "^3.0.0",
     "@walletconnect/sign-client": "^2.23.0",
     "@web3modal/ethereum": "^2.7.1",
     "@web3modal/react": "^2.7.1",
@@ -52,7 +50,7 @@
     "uuid": "^11.1.0",
     "viem": "^2.9.25",
     "vite-plugin-svgr": "^4.2.0",
-    "wagmi": "^2.5.20",
+    "wagmi": "^3.1.0",
     "yup": "^1.4.0"
   },
   "devDependencies": {
