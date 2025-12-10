@@ -34,6 +34,9 @@ export default defineConfig({
       include: "**/*.svg",
     }),
   ],
+  optimizeDeps: {
+    exclude: ["@wagmi/connectors"],
+  },
   define: {
     global: "window",
   },
