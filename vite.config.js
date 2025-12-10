@@ -43,6 +43,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@safe-window/safe-apps-sdk": "@safe-global/safe-apps-sdk",
+      "@safe-window/safe-apps-provider": "@safe-global/safe-apps-provider",
     },
   },
   server: {
