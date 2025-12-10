@@ -6,7 +6,7 @@ import {
 } from "../freighter-wallet/soroban";
 import { getNetwork, WatchWalletChanges } from "@stellar/freighter-api";
 import { v4 as uuid } from "uuid";
-import { Soroban, Horizon, Networks } from "@stellar/stellar-sdk";
+import { Soroban } from "@stellar/stellar-sdk";
 import { useAccount, useSwitchChain, useBalance } from "wagmi";
 
 import {
@@ -42,6 +42,7 @@ const SidebarContextProvider = ({ children }) => {
   const [network, setNetwork] = useState("");
   const [isOpenDeposit, setIsOpenDeposit] = useState(false);
   const [selectedChain, setSelectedChain] = useState(null);
+  const [walletKitIsOpen, setWalletKitIsOpen] = useState(false);
 
   const [selectedDestinationChain, setSelectedDestinationChain] =
     useState(null);
@@ -59,24 +60,24 @@ const SidebarContextProvider = ({ children }) => {
 
   const [nativeBalance, setNativeBalance] = useState(null);
 
-  walletWatcher.watch(({ address, network }) => {
-    setUserKey(address);
+  // walletWatcher.watch(({ address, network }) => {
+  //   setUserKey(address);
 
-    async function fetchNetwork() {
-      const nt = await getNetwork();
+  //   async function fetchNetwork() {
+  //     const nt = await getNetwork();
 
-      setNetwork(nt);
-    }
+  //     setNetwork(nt);
+  //   }
 
-    fetchNetwork();
+  //   fetchNetwork();
 
-    // setNetwork({ network: network, networkPassphrase: Networks.PUBLIC });
+  //   // setNetwork({ network: network, networkPassphrase: Networks.PUBLIC });
 
-    if (selectedSourceChain?.chainType === "soroban") {
-      const selectedNetwork = network === "TESTNET";
-      setWalletInTestnet(selectedNetwork);
-    }
-  });
+  //   if (selectedSourceChain?.chainType === "soroban") {
+  //     const selectedNetwork = network === "TESTNET";
+  //     setWalletInTestnet(selectedNetwork);
+  //   }
+  // });
 
   const { data, isError, isLoading } = useBalance({
     address: address,
@@ -399,10 +400,9 @@ const SidebarContextProvider = ({ children }) => {
     fetchNativeBalance();
   }, [address, userKey, selectedSourceChain?.id, data?.formatted]);
 
-  async function handleConnectFreighter() {
-    setFreighterConnecting(true);
-    const res = await ConnectWallet(setUserKey, setNetwork);
-    setFreighterConnecting(false);
+  async function handleConnectStellarKit() {
+    setIsOpen(false);
+    setWalletKitIsOpen(true);
   }
 
   async function awaitTransactionConfirmation(hashIn) {
@@ -425,7 +425,7 @@ const SidebarContextProvider = ({ children }) => {
         selectedChain,
         allChains,
         setSelectedChain,
-        handleConnectFreighter,
+
         userKey,
         setUserKey,
         network,
@@ -480,6 +480,9 @@ const SidebarContextProvider = ({ children }) => {
         setNativeBalance,
         nativeBalance,
         testnetIsSelected,
+        walletKitIsOpen,
+        setWalletKitIsOpen,
+        handleConnectStellarKit,
       }}
     >
       {children}

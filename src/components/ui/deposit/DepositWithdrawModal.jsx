@@ -183,20 +183,20 @@ const DepositWithdrawModal = ({ isOpenDeposit, onClose, action }) => {
                 : null;
 
             setProcessMessage("submitting transaction...");
+            const selectedNetwork = selectedSourceChain?.testnet
+              ? "TESTNET"
+              : "PUBLIC";
             const resSign = await anyInvokeMainnet(
               userKey,
               BASE_FEE,
-              network?.network,
+              selectedNetwork,
               pools[selectedSourceChain?.id],
               onchainFunction,
               args,
               ""
             );
 
-            const res = await sendTransactionMainnet(
-              resSign?.signedTxXdr,
-              network?.network
-            );
+            const res = await sendTransactionMainnet(resSign, network?.network);
 
             onClose();
             setSuccessModalIsOpen(true);

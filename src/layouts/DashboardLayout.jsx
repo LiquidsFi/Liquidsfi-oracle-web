@@ -8,10 +8,15 @@ import sidebarLinks from "../constant/sidebarLinks.jsx";
 import { SidebarContext } from "../context/SidebarContext";
 import { WagmiContext } from "../context/WagmiContext";
 import SuccessModal from "../components/SuccessModal";
+import WalletKitModal from "../utils/wallet-kit/WalletKitModal";
+import WalletsModal from "../components/WalletsModal";
 
 function DashboardLayout() {
+  const { isOpen, setIsOpen } = useContext(SidebarContext);
   return (
     <div className="flex bg-black min-h-app ">
+      <WalletsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <WalletKitModal />
       <SuccessModal />
       {/* <SuccessModal onClose={handleCloseModal} hashUrl={hashUrl} /> */}
       <Sidebar currentPageLinks={sidebarLinks} />

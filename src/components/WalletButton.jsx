@@ -122,7 +122,6 @@ function WalletButton({ width }) {
       >
         Connect Wallet
       </button>
-      <WalletsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
 }

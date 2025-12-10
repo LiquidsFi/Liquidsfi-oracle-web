@@ -5,11 +5,6 @@ import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { ArrowDown2 } from "iconsax-react";
 import { toast } from "react-toastify";
-import { v4 as uuid } from "uuid";
-
-import { tokensSelector } from "../contracts/destination-selector";
-
-import { isConnected } from "@stellar/freighter-api";
 
 function SwitchSourceToken({
   width,

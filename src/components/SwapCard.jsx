@@ -52,22 +52,13 @@ import {
   getTrustline,
   changeTrustline,
 } from "../freighter-wallet/soroban";
-import {
-  getNetwork,
-  setAllowed,
-  signTransaction,
-  getAddress,
-  addToken,
-  requestAccess,
-} from "@stellar/freighter-api";
+
 import { SidebarContext } from "../context/SidebarContext";
 import axios from "axios";
 import { handleUpsertTransaction } from "../services";
 
 function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
   const [recheckTrustline, setRecheckTrustline] = useState(0);
-
-  const [isOpen, setIsOpen] = useState(false);
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
@@ -127,6 +118,8 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
     setTokenDes,
     setMessageId,
     setSuccessModalIsOpen,
+    handleConnectStellarKit,
+    setIsOpen,
   } = useContext(SidebarContext);
 
   function handleAdressIsValid(addr) {
@@ -390,15 +383,29 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
       console.log("the resc", recipientAddr);
       console.log("the connected", userKey);
       if (userKey !== recipientAddr) {
-        const publicKey = (await requestAccess()).address;
+        await handleConnectStellarKit();
+        // const publicKey = (await requestAccess()).address;
       }
       const selectedNetwork = selectedSourceChain?.testnet
         ? "TESTNET"
         : "PUBLIC";
-      await addToken({
-        contractId: switchToken[selectedDestinationChain?.id],
-        networkPassphrase: Networks[selectedNetwork],
-      });
+
+      const signedTx = await changeTrustline(
+        userKey,
+        {
+          network: selectedNetwork,
+          networkPassphrase: Networks[selectedNetwork],
+        },
+        switchToken[selectedDestinationChain?.id]
+      );
+
+      const res = await sendTransactionMainnet(signedTx, selectedNetwork);
+      // await addToken({
+      //   contractId: switchToken[selectedDestinationChain?.id],
+      //   networkPassphrase: Networks[selectedNetwork],
+      // });
+
+      console.log("change trust signed tx", signedTx);
     } catch (e) {
       console.log(e);
     } finally {
@@ -420,21 +427,20 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
       ];
 
       // console.log(args);
-
+      const selectedNetwork = selectedSourceChain?.testnet
+        ? "TESTNET"
+        : "PUBLIC";
       const resSign = await anyInvokeMainnet(
         userKey,
         BASE_FEE,
-        network?.network,
+        selectedNetwork,
         pools[selectedSourceChain?.id],
         "bridge_to_evm",
         args,
         ""
       );
 
-      const res = await sendTransactionMainnet(
-        resSign?.signedTxXdr,
-        network?.network
-      );
+      const res = await sendTransactionMainnet(resSign, network?.network);
 
       if (res) {
         const msgData = {
@@ -878,7 +884,7 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
             >
               Connect and Change Trustline
             </Button>
-          ) : isConnected || userKey ? (
+          ) : userKey ? (
             isProcessing ? (
               <Button>
                 <>
@@ -941,16 +947,6 @@ function SwapCard({ setUserKeyXLM, setNetworkXLM, userKeyXLM }) {
           <button onClick={handleTransfer}>Buy now</button>
         </div> */}
       </div>
-
-      {/* <button onClick={handleTransferPayout}> transfer Test</button> */}
-
-      <WalletsModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        setUserKeyXLM={setUserKeyXLM}
-        setNetworkXLM={setNetworkXLM}
-        userKeyXLM={userKeyXLM}
-      />
     </>
   );
 }
