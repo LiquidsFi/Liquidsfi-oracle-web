@@ -30,6 +30,7 @@ import {
   Horizon,
 } from "@stellar/stellar-sdk";
 import axios from "axios";
+import { WalletKitService } from "../utils/wallet-kit/services/global-service";
 
 export const assetMetadata = {
   CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75: {
@@ -60,7 +61,9 @@ export async function hasTrustline(accountId, assetId) {
 
 export const BASE_FEE = "100";
 
-export const STELLAR_SDK_SERVER_URL = "https://stellar-sdk-server.sorobuild.io";
+export const STELLAR_SDK_SERVER_URL = import.meta.env.VITE_STELLAR_URL;
+
+// "https://stellar-sdk-server.sorobuild.io";
 
 export const RPC_URLS = {
   FUTURENET: "https://rpc-futurenet.stellar.org/",
@@ -380,9 +383,14 @@ export async function anyInvokeMainnet(
 
     const xdr = response.data.data;
 
-    const signedTx = await signTransaction(xdr, {
+    const signedTx = await WalletKitService.signTx(xdr, {
+      network: network,
       networkPassphrase: Networks[network],
     });
+
+    // const signedTx = await signTransaction(xdr, {
+    //   networkPassphrase: Networks[network],
+    // });
 
     return signedTx;
   } catch (error) {
@@ -422,22 +430,17 @@ export async function getTrustline(accountId, assetId, network) {
   }
 }
 
-export async function changeTrustline(
-  accountId,
-  fee,
-  networkPassphrase,
-  assetId
-) {
+export async function changeTrustline(pubKey, network, assetId) {
   const body = {
-    accountId: accountId,
-    fee: fee,
-    networkPassphrase: networkPassphrase,
-    assetId: assetId,
+    pubKey,
+    fee: BASE_FEE,
+    network: network?.network,
+    assetId,
   };
 
   try {
     const response = await axios.post(
-      `${STELLAR_SDK_SERVER_URL}/changeTrust`,
+      `${STELLAR_SDK_SERVER_URL}/change-trust`,
       body,
       {
         headers: {
@@ -448,12 +451,7 @@ export async function changeTrustline(
 
     const xdr = response.data.data;
 
-    // console.log("the transaction", xdr);
-
-    return;
-
-    const signedTx = await signTransaction(xdr, { network: "PUBLIC" });
-
+    const signedTx = await WalletKitService.signTx(xdr, network);
     return signedTx;
   } catch (error) {
     console.error(

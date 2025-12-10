@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Button from "../../components/Button";
 import { useAccount } from "wagmi";
 import WalletsModal from "../../components/WalletsModal";
@@ -6,14 +6,16 @@ import faucetContract from "../../contracts/faucet.json";
 import { config } from "../../Wagmi";
 import { writeContract } from "@wagmi/core";
 import { ClipLoader } from "react-spinners";
+import { SidebarContext } from "../../context/SidebarContext";
 
 export default function HeroMain({
   setSubmitHash,
   isProcessing,
   setIsProcessing,
 }) {
+  const { isOpen, setIsOpen } = useContext(SidebarContext);
   const { chain, address, isConnected } = useAccount();
-  const [isOpen, setIsOpen] = useState(false);
+
   const [recipientAddr, setRecipientAddr] = useState(address);
 
   const faucetAbi = faucetContract.abi;

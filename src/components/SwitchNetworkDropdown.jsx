@@ -23,12 +23,12 @@ function SwitchNetworkDropdown({ width, allChains }) {
 
     selectedChain,
     setSelectedChain,
-    handleConnectFreighter,
+    handleConnectStellarKit,
     storedChainId,
+    isOpen,
+    setIsOpen,
   } = useContext(SidebarContext);
   const { chain, address, isConnected } = useAccount();
-
-  const [isOpen, setIsOpen] = useState(false);
 
   async function handleSwitchChain(id) {
     const isSoroban = id === 12000000 || id === 14000000;
@@ -38,7 +38,7 @@ function SwitchNetworkDropdown({ width, allChains }) {
 
     setSelectedSourceChain(selected);
     if (isSoroban) {
-      await handleConnectFreighter();
+      await handleConnectStellarKit();
     } else {
       if (!address) {
         setIsOpen(true);

@@ -44,7 +44,7 @@ export default function Cashback() {
       );
 
       const res = await sendTransactionMainnet(
-        resSign?.signedTxXdr,
+        resSign,
         selectedNetwork?.networkPassphrase
       );
 

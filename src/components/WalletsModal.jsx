@@ -9,7 +9,6 @@ import { sepolia, avalancheFuji } from "viem/chains";
 import ConnectIcon from "../assets/svg/connect.svg";
 import freigterIcon from "../assets/svg/freighterIcon.png";
 
-import { isConnected, setAllowed } from "@stellar/freighter-api";
 import { SidebarContext } from "../context/SidebarContext";
 
 function WalletsModal({ isOpen, onClose }) {
@@ -21,21 +20,11 @@ function WalletsModal({ isOpen, onClose }) {
   const {
     isXLM,
     setFreighterConnecting,
-    handleConnectFreighter,
-    userKey,
-    setUserKey,
-    network,
-    setNetwork,
-    selectedSourceChain,
-  } = useContext(SidebarContext);
+    handleConnectStellarKit,
 
-  useEffect(() => {
-    async function fetchFeighter() {
-      const connected = await isConnected();
-      setFreighterInstalled(() => connected);
-    }
-    fetchFeighter();
-  }, []);
+    selectedSourceChain,
+    setWalletKitIsOpen,
+  } = useContext(SidebarContext);
 
   useEffect(() => {
     if (error && error.message) {
@@ -46,31 +35,21 @@ function WalletsModal({ isOpen, onClose }) {
   return (
     <Modal open={isOpen} onClose={onClose} heading="Connect to a wallet">
       <div className="space-y-3">
-        {freighterInstalled ? (
-          <button
-            onClick={handleConnectFreighter}
-            className="flex items-center w-full gap-3 px-3 py-2 text-left text-lg rounded-lg bg-dark-300 hover:bg-opacity-60"
-          >
-            <img className="w-12 h-12 rounded-full" src={freigterIcon} alt="" />
-            Freighter Wallet
-            {/* {isLoading &&
+        <button
+          onClick={handleConnectStellarKit}
+          className="flex items-center w-full gap-3 px-3 py-2 text-left text-lg rounded-lg bg-dark-300 hover:bg-opacity-60"
+        >
+          <img
+            className="w-12 h-12 rounded-full"
+            src="/cryptoIcons/12000000.svg"
+            alt=""
+          />
+          Stellar Wallet Kit
+          {/* {isLoading &&
               connector.id === pendingConnector?.id &&
               " (connecting)"} */}
-            <ArrowRight2 size="20" className="ml-auto" />
-          </button>
-        ) : (
-          <button
-            onClick={handleConnectFreighter}
-            className="flex items-center w-full gap-3 px-3 py-2 text-left text-lg rounded-lg bg-dark-300 hover:bg-opacity-60"
-          >
-            <img className="w-12 h-12 rounded-full" src={freigterIcon} alt="" />
-            Install Freighter Wallet
-            {/* {isLoading &&
-              connector.id === pendingConnector?.id &&
-              " (connecting)"} */}
-            <ArrowRight2 size="20" className="ml-auto" />
-          </button>
-        )}
+          <ArrowRight2 size="20" className="ml-auto" />
+        </button>
         {connectors.map((connector) => (
           <button
             // disabled={!connector.ready}
