@@ -8,6 +8,7 @@ import {
   RabetModule,
   HotWalletModule,
 } from "@creit.tech/stellar-wallets-kit";
+
 import { WatchWalletChanges } from "@stellar/freighter-api";
 
 import { TransactionBuilder, Networks } from "@stellar/stellar-sdk";
